@@ -1,0 +1,11 @@
+---
+# vars file for provisioning
+
+# worker_count: 2
+# keypair: "keypair2"
+# instance_type: "t2.micro"
+# image: "ami-047a51fa27710816e"
+# vpc_subnet_id: ""
+# assign_public_ip: "yes"
+# sg: "k8s"
+# region: ""

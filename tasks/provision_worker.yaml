@@ -1,0 +1,29 @@
+---
+# tasks file for provisioning worker instance
+
+- name: "Install boto"
+  pip:
+    name: "boto"
+
+- name: "Provisioning worker instances"
+  ec2:
+    key_name: "{{ keypair }}"
+    instance_type: "{{ instance_type }}"
+    image: "{{ image }}"
+    wait: "yes"
+    group: "{{ sg }}"
+    count_tag:
+      cluster: k8s
+      node: worker
+    exact_count: "{{ worker_count }}"
+    instance_tags:
+      Name: "k8s-worker"
+      cluster: "k8s"
+      node: "worker"
+    vpc_subnet_id: "{{ vpc_subnet_id }}"
+    region: "{{ region }}"
+    assign_public_ip: "{{ assign_public_ip }}"
+  register: ec2_worker
+
+- name: Refresh the inventory
+  meta: refresh_inventory

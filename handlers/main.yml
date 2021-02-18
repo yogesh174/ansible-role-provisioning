@@ -1,0 +1,5 @@
+---
+# handlers file for provisioning
+
+- name: "Set worker instaces to 0"
+  include_tasks: tasks/set_worker_zero.yaml
