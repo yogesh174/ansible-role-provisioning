@@ -1,32 +1,68 @@
 Role Name
 =========
 
-A brief description of the role goes here.
+This role provisions EC2 instances on AWS cloud meant for kubernetes HA cluster.
 
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+Make sure to install and configure aws shell with your credentials. Setup dynamic inventory in ansible with aws EC2 instances. Also make sure that the ansible control node can connect to newly provisioned EC2 instances(using group_vars) with the keypair you provide.
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+Compulsory variables in vars/main.yml:
 
-Dependencies
-------------
+region
+vpc_subnet_id
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+Optional variables and their default values in vars/main.yml:
+
+worker_count: 2
+keypair: "k8s"
+instance_type: "t2.micro"
+image: "ami-047a51fa27710816e"
+assign_public_ip: "yes"
+sg: "k8s"
 
 Example Playbook
 ----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+"provision_master" task provisions master node with the necessary tags and "provision_worker" task provisions worker nodes with the necessary tags.
 
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
+    - hosts: localhost
+          
+      tasks:
 
+        - name: "Provision master node"
+          import_role:
+            name: provisioning
+            tasks_from: provision_master
+          vars:
+            vpc_subnet_id: "subnet-2b3b2b4c"
+            region: "us-east-1"
+        
+        - name: "Provision worker nodes"
+          import_role:
+            name: provisioning
+            tasks_from: provision_worker
+          vars:
+            vpc_subnet_id: "subnet-2b3b2b4c"
+            region: "us-east-1"
+
+        - set_fact:
+            ec2_instances: "{{ ec2_master.instances + ec2_master.tagged_instances + ec2_worker.instances + ec2_worker.tagged_instances }}"
+
+        - name: wait for ssh to start
+          wait_for:
+            host: "{{ item.public_dns_name  }}"
+            port: 22
+            search_regex: OpenSSH
+            delay: 20
+            state: started
+          loop: "{{ ec2_instances }}"
+
+      
 License
 -------
 
@@ -35,4 +71,5 @@ BSD
 Author Information
 ------------------
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+Surapaneni Yogesh - surapaneniyogesh11@gmail.com  
+Connect with me on [LinkedIN](https://www.linkedin.com/in/surapaneni-yogesh-ba7303189/)

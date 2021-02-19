@@ -5,7 +5,7 @@
   pip:
     name: "boto"
 
-- name: "Provisioning master instance"
+- name: "Provision master instance"
   ec2:
     key_name: "{{ keypair }}"
     instance_type: "{{ instance_type }}"
@@ -26,9 +26,8 @@
   register: ec2_master
   notify: "Set worker instaces to 0"
 
-- name: Run pending handlers
+- name: "Run pending handlers"
   meta: flush_handlers
 
-- name: Refresh the inventory
+- name: "Refresh the inventory"
   meta: refresh_inventory
-
