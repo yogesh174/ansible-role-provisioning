@@ -1,4 +1,4 @@
-Role Name
+yogesh174.ansible_role_k8s
 =========
 
 This role provisions EC2 instances on AWS cloud meant for kubernetes HA cluster.
